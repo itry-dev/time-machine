@@ -7,6 +7,12 @@ export default Object.freeze({
     API_DAILY_USAGE: BASE_URL + '/credits',
     X_API_KEY: process.env.VUE_APP_CRYPTO_API_KEY
   },
+  LOCALSTORE: {
+    COIN_CODE: 'coin_code',
+    CURRENCY: 'currency',
+    NUMBER_OF_PERIODS: 'number_of_periods',
+    CRYPTOS: 'cryptos'
+  },
   VUEX:{
     GETTERS:{
       API_DAILY_USAGE: 'getApiCredits',
