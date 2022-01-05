@@ -1,5 +1,5 @@
 <template>
-  <div class="container w-50">
+  <div class="container">
     <div class="row text-start">
       <!-- currency -->
       <div class="mb-3">

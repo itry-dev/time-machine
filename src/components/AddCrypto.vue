@@ -1,7 +1,7 @@
 <template>
-  <div class="form-control">    
+  <div class="mb-1">    
     <span class="text-danger block" v-if="error">{{ error }}</span>
-    <input type="text" @keyup.enter="addCrypto($event.target)" />  
+    <input type="text" class="form-control" @keyup.enter="addCrypto($event.target)" />  
     <div class="spinner-border spinner-border-sm ms-2" role="status" v-if="loading" />  
   </div>
 </template>

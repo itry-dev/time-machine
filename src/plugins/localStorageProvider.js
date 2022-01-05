@@ -1,10 +1,9 @@
-// plugins/localStoreProvider.js
+// plugins/localStorageProvider.js
 
 import c from '@/constants'
 
 function saveItem(store){
   store.subscribe( (mutation, state) => {
-    console.log(mutation)
 
     if (mutation.type === c.VUEX.MUTATIONS.UPDATE_CURRENCY){
       try{

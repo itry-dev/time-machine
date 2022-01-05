@@ -29,7 +29,7 @@ const getters = {
   },
   [c.VUEX.GETTERS.NUMBER_OF_PERIODS](state){
     if (!state.number_of_periods || state.number_of_periods === 0){
-      state.number_of_periods = getItem(c.LOCALSTORE.NUMBER_OF_PERIODS,0)
+      state.number_of_periods = parseInt(getItem(c.LOCALSTORE.NUMBER_OF_PERIODS,0))
     }
     return state.number_of_periods
   },

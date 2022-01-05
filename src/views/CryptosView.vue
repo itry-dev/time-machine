@@ -11,7 +11,7 @@
     <div v-else>
       <div class="row pb-3">
         <div class="col">
-          <a role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+          <a role="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasList" aria-controls="offcanvasList">
           Pick a crypto
           </a>
         </div>
@@ -31,6 +31,9 @@
           </template>
           </CryptoDetails>
         </div>    
+      </div>
+      <div class="position-fixed bottom-0 end-0 mb-5" v-if="showRefreshButton">
+        <a class="bi bi-arrow-repeat me-2" style="font-size: 2rem;" @click="loadData()"></a>
       </div>
     </div>
   </div>
@@ -56,7 +59,7 @@ export default {
     ...mapGetters({
       currency: [c.VUEX.GETTERS.CURRENCY],
       code: [c.VUEX.GETTERS.COIN_CODE],
-      numberOfPeriods: [c.VUEX.GETTERS.NUMBER_OF_PERIODS]
+      number_of_periods: [c.VUEX.GETTERS.NUMBER_OF_PERIODS]
     }),
     filterCryptoData: function(){
 
@@ -65,10 +68,7 @@ export default {
       })
 
       elements.sort((a,b) => a.id - b.id)
-/*
-      this.$log('dentro al filtro filterCryptoData')
-      this.$log(elements)
-*/
+
       return elements
     },
     hasCryptos: function(){
@@ -90,7 +90,8 @@ export default {
       },
       errors: [],
       cryptoData:null,
-      loadingMessage: ''
+      loadingMessage: '',
+      showRefreshButton: false
     }
   },
   methods: {
@@ -180,7 +181,7 @@ export default {
       var p4 = 0
       var p5 = 0
 
-      if (this.numberOfPeriods === c.LARGE_NUMBER_OF_PERIODS){
+      if (this.number_of_periods === c.LARGE_NUMBER_OF_PERIODS){
 
           //9 months ago
           start = this.getTime(null,-9,null,null,-5)
@@ -210,7 +211,8 @@ export default {
       }
 
       return Promise.all([p1, p2, p3, p4, p5]).then(() => { 
-        this.loadingMessage = ''
+        this.loadingMessage = '',
+        this.showRefreshButton = true
       })
       
     },
@@ -236,7 +238,7 @@ export default {
       }
     },
     isSmallPeriod(){
-      return this.numberOfPeriods === c.SMALL_NUMBER_OF_PERIODS
+      return this.number_of_periods === c.SMALL_NUMBER_OF_PERIODS
     },
     setApiDailyUsage(){
       this.$setApiDailyUsage()
