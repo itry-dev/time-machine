@@ -19,6 +19,7 @@
         <select class="form-select" v-model="m_nr_periods" @change="saveNumberOfPeriods($event.target)">
           <option :value="small">Now, 6 months ago, Last year</option>
           <option :value="large">Now, 3 months ago, 6 months ago, 9 months ago, Last year</option>
+          <option :value="year">One year</option>
         </select>
       </div>
       <!-- cryptos -->
@@ -70,6 +71,7 @@ export default {
       m_nr_periods: 0,
       small: c.SMALL_NUMBER_OF_PERIODS,
       large: c.LARGE_NUMBER_OF_PERIODS,
+      year: c.YEAR_PERIODS,
       rows:['']
     }
   },

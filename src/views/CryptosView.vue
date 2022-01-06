@@ -23,7 +23,10 @@
           </div>
       </div>
       <div class="row">
-        <div class="col" v-for="(crypto, index) in cryptoData" :key="index">
+        <div v-if="isYearPeriod()" class="col">
+          <OneYear :cryptoData="oneYearDataSource" />
+        </div>
+        <div class="col" v-else v-for="(crypto, index) in cryptoData" :key="index">
           <CryptoDetails 
             :dataSource="crypto">
           <template v-slot:footer>
@@ -43,7 +46,7 @@ import CryptoDetails from "@/components/CryptoDetails.vue"
 import Cryptos from "@/components/Cryptos.vue"
 import Percentage from '@/components/Percentage.vue'
 import Guide from '@/components/Guide.vue'
-
+import OneYear from '@/components/periods/OneYear.vue'
 import c from "@/constants"
 import { mapGetters } from 'vuex'
 
@@ -53,7 +56,8 @@ export default {
     CryptoDetails,
     Cryptos,
     Percentage,
-    Guide
+    Guide,
+    OneYear
   },
   computed:{
     ...mapGetters({
@@ -88,6 +92,7 @@ export default {
         currency: '',
         loaded: false  
       },
+      oneYearDataSource: [],
       errors: [],
       cryptoData:null,
       loadingMessage: '',
@@ -95,12 +100,37 @@ export default {
     }
   },
   methods: {
+    isYearPeriod(){
+      return this.number_of_periods === c.YEAR_PERIODS
+    },
+    getOneYearData(){
+      this.errors = []
+      var start = this.getTime(-1)
+      var end = this.getTime()
+      this.loadingMessage = 'loading one year data'
+      Promise.resolve(
+        this.$getOneYearData(this.code, this.currency, start, end)
+        .then((e) => {
+          this.oneYearDataSource = e
+          this.setApiDailyUsage()
+          this.loadingMessage = ''
+        })
+        .catch((e) => {
+          this.errors.push(e)
+        })
+      )
+    },
     showLoader(){
       return this.loadingMessage !== ''
     },
     hasClickedCrypto(val){
       this.$store.commit(c.VUEX.MUTATIONS.UPDATE_COIN_CODE, val)
-      this.loadData()
+      if (this.isYearPeriod){
+        this.getOneYearData()
+      }else{
+        this.loadData()
+      }
+      
     },
     getTime(withYear, withMonth, withDays, withHours, withMinutes){
       var d = new Date()

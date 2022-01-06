@@ -5,6 +5,19 @@ import c from '../constants'
 const axios = require('axios').default;
 
 export default {
+
+  getError(e){
+    if (e.response){
+      if (e.response.data.error){
+        return e.response.data.error.description
+      }
+
+      return e.respose
+    }
+
+    return e
+  },
+
   install: (app, options) => {
 
     app.config.globalProperties.$getApiDailyUsage = function() {
@@ -19,6 +32,40 @@ export default {
       .catch((e) => {
         this.$store.commit(c.VUEX.MUTATIONS.UPDATE_USAGE_ERRORS, (e.response.data ? e.response.data : e.response))
       })
+    }
+
+    app.config.globalProperties.$getOneYearData = async function(coinCode, currency, start, end){
+      let data = {
+        'code': coinCode.toUpperCase(),
+        'currency': currency.toUpperCase(),
+        'start': start,
+        'end': end,
+        'meta': true
+      }
+
+      var cryptoData = { code: '', name: '', imageUrl: '', imageLowUrl: '', allTimeHighUSD: 0, history: [], currency: currency, errors: ''}
+      
+      const response = 
+        await axios.post(c.SERVER.CRYPTO_DATA_HISTORY, data)
+        .then((e) => {
+          if (e.data){
+            cryptoData.name = e.data.name
+            cryptoData.code = e.data.code
+            cryptoData.imageUrl = e.data.png64
+            cryptoData.imageLowUrl = e.data.png32
+            cryptoData.allTimeHighUSD = e.data.allTimeHighUSD
+
+            e.data.history.forEach(function(el) {
+              cryptoData.history.push(el)
+            })      
+          }
+          return cryptoData
+        })
+        .catch((e) => {
+          throw getError(e)
+        })
+
+        return response
     }
 
     app.config.globalProperties.$getCryptoData = async function(coinCode, currency, start, end){
@@ -38,7 +85,7 @@ export default {
         url = c.SERVER.CRYPTO_DATA_HISTORY
       }
 
-      var cryptoData = { name: '', rate: 0, cap: 0, date: new Date(), imageLowUrl: '', imageUrl: '', errors: ''}
+      var cryptoData = { name: '', rate: 0, cap: 0, allTimeHighUSD:0, date: new Date(), imageLowUrl: '', imageUrl: '', errors: ''}
       //const request = axios.post(url, data)
       
       const response = await axios.post(url, data)
@@ -64,6 +111,7 @@ export default {
         cryptoData.name = response.data.name
         cryptoData.imageLowUrl = response.data.png32
         cryptoData.imageUrl = response.data.png64
+        cryptoData.allTimeHighUSD = response.data.allTimeHighUSD
 
         return cryptoData
       })

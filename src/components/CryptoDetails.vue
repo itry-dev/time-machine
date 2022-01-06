@@ -13,11 +13,11 @@
     </div>
     <div class="card-body">
       <h1 class="card-title pricing-card-title">
-        {{ getFormattedCur(parseFloat(dataSource.rate)) }}
+        {{ $getFormattedCurrency(parseFloat(dataSource.rate), dataSource.currency) }}
       </h1>
       <small class="text-black-50">{{dataSource.rate}}</small>
       <ul class="list-unstyled mt-3 mb-4">
-        <li>Market Cap<br /> {{ getFormattedCur(dataSource.cap) }}</li>
+        <li>Market Cap<br /> {{ $getFormattedCurrency(dataSource.cap, dataSource.currency) }}</li>
       </ul>
     </div>
     <div class="card card-footer">
@@ -45,19 +45,6 @@ export default {
         emphatize: false,
         loaded: false
       }
-    }
-  },
-  methods: {
-    getFormattedCur(val){
-      var format = 'en-US'
-      if (this.dataSource.currency.toLowerCase() === 'eur') format = 'it-IT'
-
-      var formatter = new Intl.NumberFormat(format, {
-        style: 'currency',
-        currency: this.dataSource.currency
-      })
-
-      return formatter.format(val)
     }
   }
 }
