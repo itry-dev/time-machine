@@ -18,7 +18,7 @@
             <tbody>
                 <tr v-for="(ch, index) in cryptoData.history" :key="index">
                     <td>
-                        {{ $getFormattedDate(ch.date, 'short')}}
+                        {{ $getFormattedDate(ch.date)}}
                     </td>
                     <td>
                         {{ $getFormattedCurrency(parseFloat(ch.rate), cryptoData.currency) }}
