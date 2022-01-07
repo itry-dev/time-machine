@@ -1,22 +1,36 @@
 // plugins/apiDataProvider.js
 
-import c from '../constants'
+import c from '@/constants'
 
 const axios = require('axios').default;
 
-export default {
+function getCryptoData(){
+  return  { code: '', name: '', currency: '' , rate: 0, cap: 0, allTimeHighUSD:0,  history: [], date: null, imageLowUrl: '', imageUrl: '', errors: ''}      
+}
 
-  getError(e){
-    if (e.response){
-      if (e.response.data.error){
-        return e.response.data.error.description
-      }
+function setBaseCryptoData(target, source){
+  target.code = source.code
+  target.name = source.name
+  target.imageLowUrl = source.png32
+  target.imageUrl = source.png64
+  target.allTimeHighUSD = source.allTimeHighUSD
 
-      return e.respose
+  return target
+}
+
+function catchError(error){
+  if (error.response){
+    if (error.response.data.error){
+      throw error.response.data.error.description
     }
 
-    return e
-  },
+    throw error.respose
+  }
+  
+  throw error
+}
+
+export default {
 
   install: (app, options) => {
 
@@ -34,41 +48,61 @@ export default {
       })
     }
 
-    app.config.globalProperties.$getOneYearData = async function(coinCode, currency, start, end){
+    app.config.globalProperties.$getOneYearData = function(coinCode, currency){
+      var url = c.SERVER.CRYPTO_DATA_HISTORY
+
       let data = {
         'code': coinCode.toUpperCase(),
-        'currency': currency.toUpperCase(),
-        'start': start,
-        'end': end,
+        'currency': this.$isNorU(currency) ? 'USD' : currency,
         'meta': true
       }
 
-      var cryptoData = { code: '', name: '', imageUrl: '', imageLowUrl: '', allTimeHighUSD: 0, history: [], currency: currency, errors: ''}
-      
-      const response = 
-        await axios.post(c.SERVER.CRYPTO_DATA_HISTORY, data)
-        .then((e) => {
-          if (e.data){
-            cryptoData.name = e.data.name
-            cryptoData.code = e.data.code
-            cryptoData.imageUrl = e.data.png64
-            cryptoData.imageLowUrl = e.data.png32
-            cryptoData.allTimeHighUSD = e.data.allTimeHighUSD
+      var today = new Date()
+      var dates = []
+      var todayMn = today.getMinutes()
+      for (var i=0; i<12; i++){
+        var sd = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn - 5)        
+        var ed = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn)
+        dates.push( { start: sd.getTime(), end: ed.getTime() })
+      }
 
-            e.data.history.forEach(function(el) {
-              cryptoData.history.push(el)
-            })      
-          }
-          return cryptoData
-        })
-        .catch((e) => {
-          throw getError(e)
-        })
+      dates.push( {start: today.setMinutes(todayMn - 5), end: today.setMinutes(todayMn)} )
 
-        return response
+      var cryptoData = getCryptoData()
+      cryptoData.currency = currency
+
+      var clazz = this
+      dates.forEach(function(el) {
+
+        data.start = el.start
+        data.end = el.end
+
+        //clazz.$log(url,'apiDataProvide:getOneYearData')
+        //clazz.$log(data,'apiDataProvide:getOneYearData')
+
+        clazz.$log('start ' + new Date(data.start).toLocaleString())
+        clazz.$log('end ' + new Date(data.end).toLocaleString())
+
+        axios.post(url, data)
+        .then(function (response) {
+          //I asked 5 minutes range, take the top on the list
+          console.log(response.data.history.length)
+          cryptoData.history.push(response.data.history.pop())
+
+          setBaseCryptoData(cryptoData, response.data)
+        })
+        .catch(function (error) {
+          catchError(error)
+        });
+      })
+
+      //console.log(cryptoData)
+
+      return Promise.resolve(cryptoData)
     }
 
     app.config.globalProperties.$getCryptoData = async function(coinCode, currency, start, end){
+
       var url = c.SERVER.CRYPTO_DATA
 
       let data = {
@@ -85,11 +119,12 @@ export default {
         url = c.SERVER.CRYPTO_DATA_HISTORY
       }
 
-      var cryptoData = { name: '', rate: 0, cap: 0, allTimeHighUSD:0, date: new Date(), imageLowUrl: '', imageUrl: '', errors: ''}
-      //const request = axios.post(url, data)
-      
+      //this.$log(url,'apiDataProvide:getCryptoData')
+      //this.$log(data,'apiDataProvide:getCryptoData')
+
       const response = await axios.post(url, data)
       .then(function (response) {
+
         if (!response.data){
           return cryptoData
         }
@@ -108,23 +143,12 @@ export default {
           cryptoData.date = new Date().toString()
         }
 
-        cryptoData.name = response.data.name
-        cryptoData.imageLowUrl = response.data.png32
-        cryptoData.imageUrl = response.data.png64
-        cryptoData.allTimeHighUSD = response.data.allTimeHighUSD
+        setBaseCryptoData(cryptoData, response.data)
 
         return cryptoData
       })
       .catch(function (error) {
-        if (error.response){
-          if (error.response.data.error){
-            throw error.response.data.error.description
-          }
-
-          throw error.respose
-        }
-        
-        throw error
+        catchError(error)
       });
 
       return response

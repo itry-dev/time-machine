@@ -1,23 +1,27 @@
 // plugins/utils.js
 export default {
+
   install: (app, options) => {
-    
-    app.config.globalProperties.$isUndef = val => {
-      return typeof(val) === 'undefined'
-    }
 
     app.config.globalProperties.$isNorU = val => {
       return val === null || typeof(val) === 'undefined'
     }
 
-    app.config.globalProperties.$log = function(val, isError) {
-      if (process.env.NODE_ENV === 'development'){
-        if (typeof(val) !== 'string') val = JSON.stringify(val)
+    app.config.globalProperties.$log = function(val, caller, isError) {
+      var msg = ''
+      if (!this.$isNorU(caller)) msg += '['+caller+']: '
 
-        if (typeof(isError) === 'undefined' || !isError){
-          console.log(val)
+      if (process.env.NODE_ENV === 'development'){
+        if (typeof(val) === 'object') {
+          msg += JSON.stringify(val)
         }else{
-          console.error(val)
+          msg += val
+        }
+
+        if (this.$isNorU(isError)){
+          console.log(msg)
+        }else{
+          console.error(msg)
         }        
       }
     }

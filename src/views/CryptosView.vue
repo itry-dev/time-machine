@@ -35,9 +35,7 @@
           </CryptoDetails>
         </div>    
       </div>
-      <div class="position-fixed bottom-0 end-0 mb-5" v-if="showRefreshButton">
-        <a class="bi bi-arrow-repeat me-2" style="font-size: 2rem;" @click="loadData()"></a>
-      </div>
+      <Refresh @has-clicked-refresh="loadData()" v-if="showRefreshButton" />
     </div>
   </div>
 </template>
@@ -47,17 +45,19 @@ import Cryptos from "@/components/Cryptos.vue"
 import Percentage from '@/components/Percentage.vue'
 import Guide from '@/components/Guide.vue'
 import OneYear from '@/components/periods/OneYear.vue'
+import Refresh from '@/components/ui/Refresh.vue'
 import c from "@/constants"
 import { mapGetters } from 'vuex'
 
 export default {
-  name: "CryptosView_dels",
+  name: "CryptosView",
   components: {
     CryptoDetails,
     Cryptos,
     Percentage,
     Guide,
-    OneYear
+    OneYear,
+    Refresh
   },
   computed:{
     ...mapGetters({
@@ -100,37 +100,29 @@ export default {
     }
   },
   methods: {
-    isYearPeriod(){
-      return this.number_of_periods === c.YEAR_PERIODS
-    },
     getOneYearData(){
       this.errors = []
       var start = this.getTime(-1)
       var end = this.getTime()
       this.loadingMessage = 'loading one year data'
-      Promise.resolve(
-        this.$getOneYearData(this.code, this.currency, start, end)
-        .then((e) => {
-          this.oneYearDataSource = e
-          this.setApiDailyUsage()
-          this.loadingMessage = ''
-        })
-        .catch((e) => {
-          this.errors.push(e)
-        })
-      )
+      
+      this.$getOneYearData(this.code, this.currency)
+      .then((e) => {
+        this.oneYearDataSource = e
+        this.setApiDailyUsage()
+        this.loadingMessage = ''
+        this.showRefreshButton = true
+      })
+      .catch((e) => {
+        this.errors.push(e)
+      })
     },
     showLoader(){
       return this.loadingMessage !== ''
     },
     hasClickedCrypto(val){
       this.$store.commit(c.VUEX.MUTATIONS.UPDATE_COIN_CODE, val)
-      if (this.isYearPeriod){
-        this.getOneYearData()
-      }else{
-        this.loadData()
-      }
-      
+      this.loadData()      
     },
     getTime(withYear, withMonth, withDays, withHours, withMinutes){
       var d = new Date()
@@ -157,6 +149,12 @@ export default {
       if (this.code === ''){
         return
       }
+
+      if (this.isYearPeriod()){
+        this.getOneYearData()
+        return
+      }
+
       this.loadingMessage = 'loading'
       this.errors = []
 
@@ -253,22 +251,26 @@ export default {
       return d.toDateString()
     },
     populateCryptoDataObj(objId, objTitle, emphatize, source){
-      //this.$log(source)
+      //this.$log(source,'CryptosView:populateCryptoDataObj')
+      var d = source.history.pop();
       return {
         id: objId,
         title: objTitle,
-        rate: this.$isNorU(source.rate) ? 0 : source.rate, 
-        cap: this.$isNorU(source.cap) ? 0 : source.cap, 
+        rate: this.$isNorU(d.rate) ? 0 : d.rate, 
+        cap: this.$isNorU(d.cap) ? 0 : d.cap, 
         imageUrl: this.$isNorU(source.imageUrl) ? '' : source.imageUrl,
         code: this.code,
         currency: this.currency, 
         date: this.$isNorU(source.date) ? '' : this.getDate(source.date),
         emphatize: emphatize,
-        loaded: !this.$isNorU(source.rate)
+        loaded: !this.$isNorU(d.rate)
       }
     },
     isSmallPeriod(){
       return this.number_of_periods === c.SMALL_NUMBER_OF_PERIODS
+    },
+    isYearPeriod(){
+      return this.number_of_periods === c.YEAR_PERIODS
     },
     setApiDailyUsage(){
       this.$setApiDailyUsage()
