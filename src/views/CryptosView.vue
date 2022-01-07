@@ -92,7 +92,7 @@ export default {
         currency: '',
         loaded: false  
       },
-      oneYearDataSource: [],
+      oneYearDataSource: {},
       errors: [],
       cryptoData:null,
       loadingMessage: '',
@@ -102,8 +102,6 @@ export default {
   methods: {
     getOneYearData(){
       this.errors = []
-      var start = this.getTime(-1)
-      var end = this.getTime()
       this.loadingMessage = 'loading one year data'
       
       this.$getOneYearData(this.code, this.currency)
@@ -111,7 +109,7 @@ export default {
         this.oneYearDataSource = e
         this.setApiDailyUsage()
         this.loadingMessage = ''
-        this.showRefreshButton = true
+        this.showRefreshButton = true     
       })
       .catch((e) => {
         this.errors.push(e)
@@ -132,13 +130,13 @@ export default {
       if (!this.$isNorU(withHours)) d.setHours(d.getHours() + withHours)
       if (!this.$isNorU(withMinutes)) d.setMinutes(d.getMinutes() + withMinutes)
 /*
-      console.log('y '+withYear)
-      console.log('m '+withMonth)
-      console.log('d '+withDays)
-      console.log('h '+withHours)
-      console.log('m '+withMinutes)
+      this.$log('y '+withYear)
+      this.$log('m '+withMonth)
+      this.$log('d '+withDays)
+      this.$log('h '+withHours)
+      this.$log('m '+withMinutes)
 
-      console.log(d.toString())
+      this.$log(d.toString())
   */   
       return d.getTime()
     },
@@ -251,19 +249,17 @@ export default {
       return d.toDateString()
     },
     populateCryptoDataObj(objId, objTitle, emphatize, source){
-      //this.$log(source,'CryptosView:populateCryptoDataObj')
-      var d = source.history.pop();
       return {
         id: objId,
         title: objTitle,
-        rate: this.$isNorU(d.rate) ? 0 : d.rate, 
-        cap: this.$isNorU(d.cap) ? 0 : d.cap, 
+        rate: this.$isNorU(source.rate) ? 0 : source.rate, 
+        cap: this.$isNorU(source.cap) ? 0 : source.cap, 
         imageUrl: this.$isNorU(source.imageUrl) ? '' : source.imageUrl,
         code: this.code,
         currency: this.currency, 
         date: this.$isNorU(source.date) ? '' : this.getDate(source.date),
         emphatize: emphatize,
-        loaded: !this.$isNorU(d.rate)
+        loaded: !this.$isNorU(source.rate)
       }
     },
     isSmallPeriod(){

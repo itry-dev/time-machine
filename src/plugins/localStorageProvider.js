@@ -5,22 +5,17 @@ import c from '@/constants'
 function saveItem(store){
   store.subscribe( (mutation, state) => {
 
+    var valToStore = mutation.payload
+    var action = ''
+    
     if (mutation.type === c.VUEX.MUTATIONS.UPDATE_CURRENCY){
-      try{
-        window.localStorage.removeItem(c.LOCALSTORE.CURRENCY)
-        window.localStorage.setItem(c.LOCALSTORE.CURRENCY, mutation.payload)
-      }catch(e){
-        handleError(e)
-      }
+      action = c.LOCALSTORE.CURRENCY        
     }
-
     if (mutation.type === c.VUEX.MUTATIONS.UPDATE_NUMBER_OF_PERIODS){
-      try{
-        window.localStorage.removeItem(c.LOCALSTORE.NUMBER_OF_PERIODS)
-        window.localStorage.setItem(c.LOCALSTORE.NUMBER_OF_PERIODS, mutation.payload)
-      }catch(e){
-        handleError(e)
-      }
+      action = c.LOCALSTORE.NUMBER_OF_PERIODS      
+    }
+    if (mutation.type === c.VUEX.MUTATIONS.UPDATE_COIN_CODE){
+      action = c.LOCALSTORE.COIN_CODE      
     }
 
     if (mutation.type === c.VUEX.MUTATIONS.ADD_CRYPTO || mutation.type === c.VUEX.MUTATIONS.REMOVE_CRYPTO){
@@ -62,6 +57,15 @@ function saveItem(store){
       }
       
 
+    }else{
+      if (action !== ''){
+        try{
+          window.localStorage.removeItem(action)
+          window.localStorage.setItem(action, valToStore)
+        }catch(e){
+          handleError(e)
+        }
+      }
     }
   })
 }
@@ -85,7 +89,7 @@ function getItem(key, defaultVal){
 }
 
 function handleError(err){
-  console.log(err)
+  console.error(err)
 }
 
 export { saveItem, getItem }

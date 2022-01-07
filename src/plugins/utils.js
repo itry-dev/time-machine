@@ -9,17 +9,13 @@ export default {
 
     app.config.globalProperties.$log = function(val, caller, isError) {
       var msg = ''
-      if (!this.$isNorU(caller)) msg += '['+caller+']: '
+      if (!this.$isNorU(caller)) msg += '['+caller+']'
 
-      if (process.env.NODE_ENV === 'development'){
-        if (typeof(val) === 'object') {
-          msg += JSON.stringify(val)
-        }else{
-          msg += val
-        }
+      if (process.env.NODE_ENV === 'development') {
+        if (!this.$isNorU(caller)) console.log(caller)
 
-        if (this.$isNorU(isError)){
-          console.log(msg)
+        if (this.$isNorU(isError)){          
+          console.log(val)
         }else{
           console.error(msg)
         }        

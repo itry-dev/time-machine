@@ -48,7 +48,7 @@ export default {
       })
     }
 
-    app.config.globalProperties.$getOneYearData = function(coinCode, currency){
+    app.config.globalProperties.$getOneYearData = async function(coinCode, currency){
       var url = c.SERVER.CRYPTO_DATA_HISTORY
 
       let data = {
@@ -61,44 +61,42 @@ export default {
       var dates = []
       var todayMn = today.getMinutes()
       for (var i=0; i<12; i++){
-        var sd = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn - 5)        
+        var sd = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn - 30)        
         var ed = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn)
         dates.push( { start: sd.getTime(), end: ed.getTime() })
       }
 
-      dates.push( {start: today.setMinutes(todayMn - 5), end: today.setMinutes(todayMn)} )
+      dates.push( {start: today.setMinutes(todayMn - 30), end: today.setMinutes(todayMn)} )
 
-      var cryptoData = getCryptoData()
-      cryptoData.currency = currency
+      var dataSource = []
 
-      var clazz = this
-      dates.forEach(function(el) {
-
+      for (i = 0; i < dates.length; i++){
+        var el = dates[i]
         data.start = el.start
         data.end = el.end
 
-        //clazz.$log(url,'apiDataProvide:getOneYearData')
-        //clazz.$log(data,'apiDataProvide:getOneYearData')
-
-        clazz.$log('start ' + new Date(data.start).toLocaleString())
-        clazz.$log('end ' + new Date(data.end).toLocaleString())
-
-        axios.post(url, data)
+        await axios.post(url, data)
         .then(function (response) {
-          //I asked 5 minutes range, take the top on the list
-          console.log(response.data.history.length)
-          cryptoData.history.push(response.data.history.pop())
-
-          setBaseCryptoData(cryptoData, response.data)
+          dataSource.push(response.data)
+          
         })
         .catch(function (error) {
           catchError(error)
         });
-      })
+      }
 
-      //console.log(cryptoData)
+      var cryptoData = getCryptoData()
+      cryptoData.currency = currency
+      if (dataSource.length > 0){
+        setBaseCryptoData(cryptoData, dataSource[0])
 
-      return Promise.resolve(cryptoData)
+        dataSource.forEach(function(el) {
+          //I asked 30 minutes range, take the top of the list
+          cryptoData.history.push(el.history.pop())
+        })
+      }
+      
+      return cryptoData
     }
 
     app.config.globalProperties.$getCryptoData = async function(coinCode, currency, start, end){
@@ -121,6 +119,8 @@ export default {
 
       //this.$log(url,'apiDataProvide:getCryptoData')
       //this.$log(data,'apiDataProvide:getCryptoData')
+
+      var cryptoData = getCryptoData()
 
       const response = await axios.post(url, data)
       .then(function (response) {

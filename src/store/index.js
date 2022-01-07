@@ -19,6 +19,9 @@ const getters = {
     return state.API_USAGE_ERRORS
   },
   [c.VUEX.GETTERS.COIN_CODE](state){
+    if (!state.coin_code || state.coin_code === ''){
+      state.coin_code = getItem(c.LOCALSTORE.COIN_CODE,'')
+    }
     return state.coin_code
   },
   [c.VUEX.GETTERS.CURRENCY](state){
