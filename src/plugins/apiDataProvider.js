@@ -61,24 +61,27 @@ export default {
       var dates = []
       var todayMn = today.getMinutes()
       for (var i=0; i<12; i++){
-        var sd = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn - 30)        
+        var sd = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn - 10)        
         var ed = new Date(today.getFullYear()-1, i, today.getDate(), today.getHours(), todayMn)
         dates.push( { start: sd.getTime(), end: ed.getTime() })
       }
 
-      dates.push( {start: today.setMinutes(todayMn - 30), end: today.setMinutes(todayMn)} )
+      var d0 = new Date()
+      d0.setMinutes(-10)
+      var d1 = new Date()      
+      dates.push( {start: d0.getTime(), end: d1.getTime()} )
 
       var dataSource = []
-
+      //var clazz = this
       for (i = 0; i < dates.length; i++){
         var el = dates[i]
         data.start = el.start
         data.end = el.end
-
+        
+        //clazz.$log('calling data from ' + new Date(el.start).toLocaleTimeString() + ' to ' + new Date(el.end).toLocaleTimeString(), 'apiDataProvider')
         await axios.post(url, data)
         .then(function (response) {
           dataSource.push(response.data)
-          
         })
         .catch(function (error) {
           catchError(error)
@@ -91,8 +94,10 @@ export default {
         setBaseCryptoData(cryptoData, dataSource[0])
 
         dataSource.forEach(function(el) {
-          //I asked 30 minutes range, take the top of the list
-          cryptoData.history.push(el.history.pop())
+          //I asked 10 minutes range, take the top of the list
+          if (el.history && el.history.length > 0){
+            cryptoData.history.push(el.history.pop())
+          }
         })
       }
       
