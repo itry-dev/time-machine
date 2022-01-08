@@ -19,7 +19,7 @@ Developed with Vue 3
 [https://v3.vuejs.org/](https://v3.vuejs.org/)   
 
 LiveCoinWatch Api Key  
-[https://www.livecoinwatch.com/tools/api](https://www.livecoinwatch.com/tools/api])  
+[https://www.livecoinwatch.com/tools/api](https://www.livecoinwatch.com/tools/api])
 
 ## Quick guide
 Setting the project  
