@@ -1,6 +1,6 @@
 <template>
 <div class="row" v-if="cryptoData.name !== ''">
-    <div class="text-center">{{ cryptoData }}
+    <div class="text-center">
         <img :src="cryptoData.imageUrl" />
     </div>
     <h1 class="display-5 fw-bold">
