@@ -26,7 +26,6 @@
   </div>
 </template>
 <script>
-
 export default {
   name: 'CryptoDetails',
   props: {
@@ -42,6 +41,7 @@ export default {
         code: '',
         currency: '', 
         date: '',
+        allTimeHighUSD: 0,
         emphatize: false,
         loaded: false
       }

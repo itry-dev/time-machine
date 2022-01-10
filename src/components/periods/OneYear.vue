@@ -1,11 +1,13 @@
 <template>
-    <div class="text-center">
+<div class="row" v-if="cryptoData.name !== ''">
+    <div class="text-center">{{ cryptoData }}
         <img :src="cryptoData.imageUrl" />
     </div>
     <h1 class="display-5 fw-bold">
         {{ cryptoData.name }}        
     </h1>
     <div class="col">
+        <ATH :ath="cryptoData.allTimeHighUSD" />
         <table class="table">
             <thead>
                 <tr>
@@ -33,8 +35,10 @@
             </tbody>
         </table>
     </div>
+</div>    
 </template>
 <script>
+import ATH from '@/components/ui/ATH.vue'
 export default {
     name: 'OneYear',
     props: {
@@ -42,6 +46,9 @@ export default {
             type: Object,
             required: true
         }
+    },
+    components:{
+        ATH
     }
 }
 </script>
