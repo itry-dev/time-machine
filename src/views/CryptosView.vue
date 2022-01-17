@@ -26,6 +26,9 @@
         <div v-if="isYearPeriod()" class="col">
           <OneYear :cryptoData="oneYearDataSource" />
         </div>
+        <div v-else-if="isThreeDaysPeriod()" class="col">
+          <ThreeDays :cryptoData="threeDaysDataSource" />
+        </div>
         <div class="col" v-else v-for="(crypto, index) in cryptoData" :key="index">
           <CryptoDetails 
             :dataSource="crypto">
@@ -41,6 +44,7 @@
 </template>
 <script>
 import CryptoDetails from "@/components/CryptoDetails.vue"
+import ThreeDays from "@/components/periods/ThreeDays.vue"
 import Cryptos from "@/components/Cryptos.vue"
 import Percentage from '@/components/Percentage.vue'
 import Guide from '@/components/Guide.vue'
@@ -53,6 +57,7 @@ export default {
   name: "CryptosView",
   components: {
     CryptoDetails,
+    ThreeDays,
     Cryptos,
     Percentage,
     Guide,
@@ -93,6 +98,7 @@ export default {
         loaded: false  
       },
       oneYearDataSource: {},
+      threeDaysDataSource: {},
       errors: [],
       cryptoData:null,
       loadingMessage: '',
@@ -113,6 +119,56 @@ export default {
       })
       .catch((e) => {
         this.errors.push(e)
+      })
+    },
+    getThreeDaysPeriod(){
+      this.threeDaysDataSource = new Object()
+
+      var start = this.getTime(null,-12,-1,null,-15)
+      var end = this.getTime(null,-12,-1,null,null)
+      this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.threeDaysDataSource[4] = this.populateCryptoDataObj(0,'One day before',false,e)
+      })
+      .catch((e) => {
+        console.error(e)
+      })
+
+      start = this.getTime(null,-12,-2,null,-15)
+      end = this.getTime(null,-12,-2,null,null)
+      this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.threeDaysDataSource[3] = this.populateCryptoDataObj(0,'Two days before',false,e)
+      })
+      .catch((e) => {
+        console.error(e)
+      })
+
+      start = this.getTime(null,-12,-3,null,-15)
+      end = this.getTime(null,-12,-3,null,null)
+      this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.threeDaysDataSource[2] = this.populateCryptoDataObj(0,'Three days before',false,e)
+      })
+      .catch((e) => {
+        console.error(e)
+      })
+
+      start = this.getTime(null,-12,-4,null,-15)
+      end = this.getTime(null,-12,-4,null,null)
+      this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.threeDaysDataSource[1] = this.populateCryptoDataObj(0,'Four days before',false,e)
+      })
+      .catch((e) => {
+        console.error(e)
+      })
+
+      start = this.getTime(null,-12,-5,null,-15)
+      end = this.getTime(null,-12,-5,null,null)
+      this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.threeDaysDataSource[0] = this.populateCryptoDataObj(0,'Five days before',false,e)
       })
     },
     showLoader(){
@@ -143,8 +199,23 @@ export default {
     getCryptoData(start, end){
       return this.$getCryptoData(this.code, this.currency, start, end)      
     },
+    getDataByPeriod(start, end){
+      return Promise.resolve(
+        this.getCryptoData(start, end)
+        .then((e) => {
+          this.setApiDailyUsage()
+          return e
+        })
+        .catch((e) => this.errors.push(e))
+      )   
+    },
     loadData(){
       if (this.code === ''){
+        return
+      }
+
+      if (this.isThreeDaysPeriod()){
+        this.getThreeDaysPeriod()
         return
       }
 
@@ -167,42 +238,30 @@ export default {
 
       //12 months ago
       start = this.getTime(null,-12,null,null,-5)
-      end = this.getTime(null,-12,null,null,-1)      
-      var p1 = Promise.resolve(
-        this.getCryptoData(start, end)
-        .then((e) => {
-          this.cryptoData[pos12M] =  this.populateCryptoDataObj(pos12M,'12 months ago',false,e)
-          this.setApiDailyUsage()
-          this.loadingMessage += '12 m'
-        })
-        .catch((e) => this.errors.push(e))
-      )
+      end = this.getTime(null,-12,null,null,-1) 
+      var p1 = this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.cryptoData[pos12M] =  this.populateCryptoDataObj(pos12M,'12 months ago',false,e)
+        this.loadingMessage += '12 m'
+      })
 
       //6 months ago
       start = this.getTime(null,-6,null,null,-5)
       end = this.getTime(null,-6,null,null,-1)
-      var p2 = Promise.resolve(
-        this.getCryptoData(start,end)
-        .then((e) => {
-          this.cryptoData[pos6M] = this.populateCryptoDataObj(pos6M,'6 months ago',false,e) 
-          this.setApiDailyUsage()
-          this.loadingMessage += ',6 m'
-        })
-        .catch((e) => this.errors.push(e))
-      )
+      var p2 = this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.cryptoData[pos6M] = this.populateCryptoDataObj(pos6M,'6 months ago',false,e)
+        this.loadingMessage += ',6 m'
+      })
 
       //now      
       var start = this.getTime(null,null,null,null,-5)
       var end = this.getTime(null,null,null,null,-1)
-      var p3 = Promise.resolve(
-        this.getCryptoData(start,end)
-        .then((e) => {
-          this.cryptoData[posNow] = this.populateCryptoDataObj(posNow,'Now',true,e) 
-          this.setApiDailyUsage()
-          this.loadingMessage += ',now'
-        })
-        .catch((e) => this.errors.push(e))
-      )
+      var p3 = this.getDataByPeriod(start, end)
+      .then((e) => {
+        this.cryptoData[posNow] = this.populateCryptoDataObj(posNow,'Now',true,e) 
+        this.loadingMessage += ',now'
+      })
 
       var p4 = 0
       var p5 = 0
@@ -212,28 +271,20 @@ export default {
           //9 months ago
           start = this.getTime(null,-9,null,null,-5)
           end = this.getTime(null,-9,null,null,-1)
-          p4 = Promise.resolve(
-            this.getCryptoData(start,end)
-            .then((e) => {
-              this.cryptoData[pos9M] = this.populateCryptoDataObj(pos9M,'9 months ago',false,e)
-              this.setApiDailyUsage()
-              this.loadingMessage += ',9 m'
-            })
-            .catch((e) => this.errors.push(e))
-          )
+          var p4 = this.getDataByPeriod(start, end)
+          .then((e) => {
+            this.cryptoData[pos9M] = this.populateCryptoDataObj(pos9M,'9 months ago',false,e) 
+            this.loadingMessage += ',9 m'
+          })
 
           //3 months ago
           start = this.getTime(null,-3,null,null,-5)
           end = this.getTime(null,-3,null,null,-1)
-          p5 = Promise.resolve(
-            this.getCryptoData(start,end)
-            .then((e) => {
-              this.cryptoData[pos3M] = this.populateCryptoDataObj(pos3M,'3 months ago',false,e)
-              this.setApiDailyUsage()
-              this.loadingMessage += ',3 m'
-            })
-            .catch((e) => this.errors.push(e))
-          )
+          var p5 = this.getDataByPeriod(start, end)
+          .then((e) => {
+            this.cryptoData[pos3M] = this.populateCryptoDataObj(pos3M,'3 months ago',false,e) 
+            this.loadingMessage += ',3 m'
+          })
       }
 
       return Promise.all([p1, p2, p3, p4, p5]).then(() => { 
@@ -267,6 +318,9 @@ export default {
     },
     isYearPeriod(){
       return this.number_of_periods === c.YEAR_PERIODS
+    },
+    isThreeDaysPeriod(){
+      return this.number_of_periods === c.THREE_DAYS_PERIOD
     },
     setApiDailyUsage(){
       this.$setApiDailyUsage()
