@@ -13,13 +13,13 @@
 import CryptoDetails from "@/components/CryptoDetails.vue"
 
 export default {
-  name: "ThreeDays",
+  name: "FiveDays",
   components: {
     CryptoDetails
   },
   props:{
     cryptoData:{
-      type:Array,
+      type:Object,
       required:true
     }
   },

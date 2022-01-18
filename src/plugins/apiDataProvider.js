@@ -134,9 +134,7 @@ export default {
           return cryptoData
         }
 
-        if (Array.isArray(response.data.history)){
-
-          if (response.data.history.length === 0) return cryptoData
+        if (Array.isArray(response.data.history) && response.data.history.length > 0){
 
           var el = response.data.history.pop()
           cryptoData.rate = el.rate

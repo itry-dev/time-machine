@@ -1,5 +1,5 @@
 <template>
-  <div class="card mb-4 rounded-3 shadow-sm">
+  <div class="card mb-4 rounded-3 shadow-sm" :class="[dataSource.emphatize ? 'card border-primary' : '']">
     <div class="card-header no-bg">
       <span :class="[dataSource.emphatize ? 'badge emph' : 'badge no-emph']">{{ dataSource.title }}</span>
     </div>

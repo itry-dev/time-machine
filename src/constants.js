@@ -34,7 +34,7 @@ export default Object.freeze({
   },
   SMALL_NUMBER_OF_PERIODS: 3,
   LARGE_NUMBER_OF_PERIODS: 5,
-  THREE_DAYS_PERIOD: 72,
+  FIVE_DAYS_PERIOD: 5,
   YEAR_PERIODS: 12
 
 })

@@ -23,11 +23,11 @@
           </div>
       </div>
       <div class="row">
-        <div v-if="isYearPeriod()" class="col">
+        <div v-if="isYearPeriod()" class="col">          
           <OneYear :cryptoData="oneYearDataSource" />
         </div>
-        <div v-else-if="isThreeDaysPeriod()" class="col">
-          <ThreeDays :cryptoData="threeDaysDataSource" />
+        <div v-else-if="isFiveDaysPeriod()" class="col">
+          <FiveDays :cryptoData="fiveDaysDataSource" />
         </div>
         <div class="col" v-else v-for="(crypto, index) in cryptoData" :key="index">
           <CryptoDetails 
@@ -44,7 +44,7 @@
 </template>
 <script>
 import CryptoDetails from "@/components/CryptoDetails.vue"
-import ThreeDays from "@/components/periods/ThreeDays.vue"
+import FiveDays from "@/components/periods/FiveDays.vue"
 import Cryptos from "@/components/Cryptos.vue"
 import Percentage from '@/components/Percentage.vue'
 import Guide from '@/components/Guide.vue'
@@ -57,7 +57,7 @@ export default {
   name: "CryptosView",
   components: {
     CryptoDetails,
-    ThreeDays,
+    FiveDays,
     Cryptos,
     Percentage,
     Guide,
@@ -98,7 +98,7 @@ export default {
         loaded: false  
       },
       oneYearDataSource: {},
-      threeDaysDataSource: {},
+      fiveDaysDataSource: {},
       errors: [],
       cryptoData:null,
       loadingMessage: '',
@@ -121,17 +121,17 @@ export default {
         this.errors.push(e)
       })
     },
-    getThreeDaysPeriod(){
+    getFiveDaysPeriod(){
       this.loadingMessage = 'loading'
       this.errors = []
-      this.threeDaysDataSource = new Object()
+      this.fiveDaysDataSource = new Object()
 
       //one day after
       var start = this.getTime(null,-12,1,null,-15)
       var end = this.getTime(null,-12,1,null,null)
       var p0 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.threeDaysDataSource[0] = this.populateCryptoDataObj(0,'One day after',false,e)
+        this.fiveDaysDataSource[1] = this.populateCryptoDataObj(0,'One day after',false,e)
       })
 
       //two days after
@@ -139,7 +139,7 @@ export default {
       end = this.getTime(null,-12,2,null,null)
       var p1 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.threeDaysDataSource[1] = this.populateCryptoDataObj(0,'Two days after',false,e)
+        this.fiveDaysDataSource[2] = this.populateCryptoDataObj(0,'Two days after',false,e)
       })
 
       //three days after
@@ -147,7 +147,7 @@ export default {
       end = this.getTime(null,-12,3,null,null)
       var p2 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.threeDaysDataSource[2] = this.populateCryptoDataObj(0,'Three days after',false,e)
+        this.fiveDaysDataSource[3] = this.populateCryptoDataObj(0,'Three days after',false,e)
       })
 
       //four days after
@@ -155,15 +155,13 @@ export default {
       end = this.getTime(null,-12,4,null,null)
       var p3 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.threeDaysDataSource[3] = this.populateCryptoDataObj(0,'Four days after',false,e)
+        this.fiveDaysDataSource[4] = this.populateCryptoDataObj(0,'Four days after',false,e)
       })
 
-      //five days after
-      start = this.getTime(null,-12,5,null,-15)
-      end = this.getTime(null,-12,5,null,null)
-      var p4 = this.getDataByPeriod(start, end)
+      //now
+      var p4 = this.getDataByPeriod()
       .then((e) => {
-        this.threeDaysDataSource[4] = this.populateCryptoDataObj(0,'Five days after',false,e)
+        this.fiveDaysDataSource[0] = this.populateCryptoDataObj(0,'Now',true,e)
       })
 
       Promise.all([p0,p1,p2,p3,p4]).then(() => this.loadingMessage = '')
@@ -190,7 +188,9 @@ export default {
       this.$log('m '+withMinutes)
 
       this.$log(d.toString())
-  */   
+*/
+      
+     
       return d.getTime()
     },
     getCryptoData(start, end){
@@ -211,8 +211,8 @@ export default {
         return
       }
 
-      if (this.isThreeDaysPeriod()){
-        this.getThreeDaysPeriod()
+      if (this.isFiveDaysPeriod()){
+        this.getFiveDaysPeriod()
         return
       }
 
@@ -316,8 +316,8 @@ export default {
     isYearPeriod(){
       return this.number_of_periods === c.YEAR_PERIODS
     },
-    isThreeDaysPeriod(){
-      return this.number_of_periods === c.THREE_DAYS_PERIOD
+    isFiveDaysPeriod(){
+      return this.number_of_periods === c.FIVE_DAYS_PERIOD
     },
     setApiDailyUsage(){
       this.$setApiDailyUsage()
