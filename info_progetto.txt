@@ -1,0 +1,5 @@
+2022-01-10
+tre rami
+master, versione stabile del progetto
+develop, da usare per funzionalità non ancora del tutto testate o non ancora del tutto convincenti
+feature/extended_search, testo la funzionalità di ricerca estesa. Ad oggi però non è possibile richiamare il server di livecoinwatch perchè bloccato dai cors. Devo capire come fare la chiamata come se fosse postaman. Su postman posso fare quella chiamata, non ci sono blocchi cors.

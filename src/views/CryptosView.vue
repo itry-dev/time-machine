@@ -126,45 +126,54 @@ export default {
       this.errors = []
       this.fiveDaysDataSource = new Object()
 
+
+      //now
+      var p0 = this.getDataByPeriod()
+      .then((e) => {
+        this.fiveDaysDataSource[0] = this.populateCryptoDataObj(0,'Now',true,e)
+      })
+
+      //today last year
+      start = this.getTime(-1,null,null,null,-15)
+      end = this.getTime(-1,null,null,null,null)
+      var p1 = this.getDataByPeriod(start,end)
+      .then((e) => {
+        this.fiveDaysDataSource[1] = this.populateCryptoDataObj(0,'Today Last Year',false,e)
+      })      
+
       //one day after
       var start = this.getTime(null,-12,1,null,-15)
       var end = this.getTime(null,-12,1,null,null)
-      var p0 = this.getDataByPeriod(start, end)
+      var p2 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.fiveDaysDataSource[1] = this.populateCryptoDataObj(0,'One day after',false,e)
+        this.fiveDaysDataSource[2] = this.populateCryptoDataObj(0,'One day after',false,e)
       })
 
       //two days after
       start = this.getTime(null,-12,2,null,-15)
       end = this.getTime(null,-12,2,null,null)
-      var p1 = this.getDataByPeriod(start, end)
+      var p3 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.fiveDaysDataSource[2] = this.populateCryptoDataObj(0,'Two days after',false,e)
+        this.fiveDaysDataSource[3] = this.populateCryptoDataObj(0,'Two days after',false,e)
       })
 
       //three days after
       start = this.getTime(null,-12,3,null,-15)
       end = this.getTime(null,-12,3,null,null)
-      var p2 = this.getDataByPeriod(start, end)
+      var p4 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.fiveDaysDataSource[3] = this.populateCryptoDataObj(0,'Three days after',false,e)
+        this.fiveDaysDataSource[4] = this.populateCryptoDataObj(0,'Three days after',false,e)
       })
 
       //four days after
       start = this.getTime(null,-12,-4,null,-15)
       end = this.getTime(null,-12,4,null,null)
-      var p3 = this.getDataByPeriod(start, end)
+      var p5 = this.getDataByPeriod(start, end)
       .then((e) => {
-        this.fiveDaysDataSource[4] = this.populateCryptoDataObj(0,'Four days after',false,e)
+        this.fiveDaysDataSource[5] = this.populateCryptoDataObj(0,'Four days after',false,e)
       })
 
-      //now
-      var p4 = this.getDataByPeriod()
-      .then((e) => {
-        this.fiveDaysDataSource[0] = this.populateCryptoDataObj(0,'Now',true,e)
-      })
-
-      Promise.all([p0,p1,p2,p3,p4]).then(() => this.loadingMessage = '')
+      Promise.all([p0,p1,p2,p3,p4,p5]).then(() => this.loadingMessage = '')
     },
     showLoader(){
       return this.loadingMessage !== ''
