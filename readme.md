@@ -1,8 +1,5 @@
 # A Simple Crypto Time Machine
-
-Check how your favourite crypto acted last year, six months ago compared to now.
-Three boxes filled with essentials information about how the rate was today vs last year, today vs six months ago and today's rate.
-All you need is a Live Coin Watch Api Key  
+See how your favorite cryptocurrency performed over the past year and six months compared to today. Three boxes provide essential information about the rate today vs. last year, today vs. six months ago, and the current rate. All you need is a Live Coin Watch API key.  
 [https://www.livecoinwatch.com/tools/api](https://www.livecoinwatch.com/tools/api])  
 
 # Run the project  
